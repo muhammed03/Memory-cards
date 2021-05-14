@@ -11,7 +11,13 @@ const clearBtn = document.getElementById("clear");
 const addContainer = document.getElementById("add-container");
 
 // Track of current card
-let currentActiveCard = 0;
+let currentActiveCard = getCurrentActiveCard();
+
+function getCurrentActiveCard() {
+  return localStorage.getItem("current-card") === null
+    ? Number(0)
+    : Number(localStorage.getItem("current-card"));
+}
 
 // Store DOM cards
 const cardsEl = [];
@@ -21,21 +27,18 @@ const cardsData = getCardsData();
 
 // Create all cards
 function createCards() {
-  cardsData.forEach((data, index) => createCard(data, index));
+  cardsData.forEach((data) => createCard(data));
 }
 
 // Cretae single card
-function createCard(data, index) {
+function createCard(data) {
   const card = document.createElement("div");
   card.classList.add("card");
-
-  if (index === 0) {
-    card.classList.add("active");
-  }
 
   card.innerHTML = `<div class="inner-card">
                         <div class="inner-card-front">
                             <p>${data.question}</p>
+                            <button class="btn remove-btn" onclick="removeCard()"><i class="fas fa-trash"> </i></button>
                         </div>
                         <div class="inner-card-back">
                             <p>${data.answer}</p>
@@ -48,11 +51,16 @@ function createCard(data, index) {
 
   cardsContainer.appendChild(card);
 
-  updateCurrentText();
+  updateCurrentCard();
 }
 
-function updateCurrentText() {
+function showInitialCard() {
+  cardsEl[currentActiveCard].className = "card active";
+}
+
+function updateCurrentCard() {
   currentEl.innerText = `${currentActiveCard + 1}/${cardsEl.length}`;
+  localStorage.setItem("current-card", currentActiveCard.toString());
 }
 
 // Get cards from local storage
@@ -79,7 +87,7 @@ nextBtn.addEventListener("click", () => {
   }
 
   cardsEl[currentActiveCard].className = "card active";
-  updateCurrentText();
+  updateCurrentCard();
 });
 
 prevBtn.addEventListener("click", () => {
@@ -92,7 +100,7 @@ prevBtn.addEventListener("click", () => {
   }
 
   cardsEl[currentActiveCard].className = "card active";
-  updateCurrentText();
+  updateCurrentCard();
 });
 
 // Show add container
@@ -102,6 +110,19 @@ hideBtn.addEventListener("click", () => addContainer.classList.remove("show"));
 
 // Add new card
 addCardBtn.addEventListener("click", () => {
+  addCard();
+});
+
+answer.addEventListener("keydown", function (e) {
+  const keyCode = e.keyCode;
+
+  if (keyCode === 13) {
+    addCard();
+  }
+});
+
+// Add card
+function addCard() {
   const question = questionEl.value;
   const answer = answerEl.value;
 
@@ -117,7 +138,7 @@ addCardBtn.addEventListener("click", () => {
     cardsData.push(newCard);
     setCardsData(cardsData);
   }
-});
+}
 
 // Clear cards button
 clearBtn.addEventListener("click", () => {
@@ -125,3 +146,20 @@ clearBtn.addEventListener("click", () => {
   cardsContainer.innerHTML = "";
   window.location.reload();
 });
+
+// Remove current card
+function removeCard() {
+  cardsData.splice(currentActiveCard, 1);
+
+  if (currentActiveCard > 0) {
+    currentActiveCard--;
+  }
+
+  updateCurrentCard();
+  setCardsData(cardsData);
+}
+
+// Show initial card
+if (cardsData.length > 0) {
+  showInitialCard();
+}

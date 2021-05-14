@@ -19,6 +19,7 @@ body {
 
 h1 {
   position: relative;
+  margin-bottom: 50px;
 }
 
 h1 button {
@@ -191,4 +192,16 @@ h1 button {
   padding: 12px;
   min-width: 500px;
   max-width: 100%;
+}
+
+.remove-btn {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  border: none;
+}
+
+.btn:hover {
+  background-color: rgba(0, 0, 0, 0.123);
 }
