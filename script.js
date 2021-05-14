@@ -17,20 +17,7 @@ let currentActiveCard = 0;
 const cardsEl = [];
 
 // Store card data
-const cardsData = [
-  {
-    question: "Lorem ipsum, dolor sit amet consectetur?",
-    answer: "Lorem ipsum",
-  },
-  {
-    question: "Lorem ipsum, dolor sit amet consectetur?",
-    answer: "Lorem ipsum",
-  },
-  {
-    question: "Lorem ipsum, dolor sit amet consectetur?",
-    answer: "Lorem ipsum",
-  },
-];
+const cardsData = getCardsData();
 
 // Create all cards
 function createCards() {
@@ -68,6 +55,18 @@ function updateCurrentText() {
   currentEl.innerText = `${currentActiveCard + 1}/${cardsEl.length}`;
 }
 
+// Get cards from local storage
+function getCardsData() {
+  const cards = JSON.parse(localStorage.getItem("cards"));
+  return cards === null ? [] : cards;
+}
+
+// Add card to the local storage
+function setCardsData(cards) {
+  localStorage.setItem("cards", JSON.stringify(cards));
+  window.location.reload();
+}
+
 createCards();
 
 nextBtn.addEventListener("click", () => {
@@ -94,4 +93,35 @@ prevBtn.addEventListener("click", () => {
 
   cardsEl[currentActiveCard].className = "card active";
   updateCurrentText();
+});
+
+// Show add container
+showBtn.addEventListener("click", () => addContainer.classList.add("show"));
+// Hide add container
+hideBtn.addEventListener("click", () => addContainer.classList.remove("show"));
+
+// Add new card
+addCardBtn.addEventListener("click", () => {
+  const question = questionEl.value;
+  const answer = answerEl.value;
+
+  if (question.trim() && answer.trim()) {
+    const newCard = { question, answer };
+
+    createCard(newCard);
+    questionEl.value = "";
+    answer.value = "";
+
+    addContainer.classList.remove("show");
+
+    cardsData.push(newCard);
+    setCardsData(cardsData);
+  }
+});
+
+// Clear cards button
+clearBtn.addEventListener("click", () => {
+  localStorage.clear();
+  cardsContainer.innerHTML = "";
+  window.location.reload();
 });
